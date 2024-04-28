@@ -10,29 +10,23 @@ from sklearn.model_selection import KFold
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.linear_model import Ridge, Lasso, ElasticNet, SGDRegressor, LinearRegression
 from sklearn.tree import DecisionTreeRegressor
+from sklearn.ensemble import RandomForestRegressor, ExtraTreesRegressor, AdaBoostRegressor, GradientBoostingRegressor
+import pandas as pd
 
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.ensemble import ExtraTreesRegressor
-from sklearn.ensemble import AdaBoostRegressor
-from sklearn.ensemble import GradientBoostingRegressor
-def evaluate_model_plot(y_true, y_predict, residual= False ,show=True):
+def evaluate_model_plot(y_true, y_predict, residual=False, show=True):
     """
     Evaluate model error.
 
     Args:
     y_true: Array-like, true target values.
     y_predict: Array-like, predicted target values.
+    residual: Boolean, whether to plot residual histogram.
+    show: Boolean, whether to show the plots.
 
     Returns:
     dict: Dictionary containing error metrics.
     """
-    import numpy as np
-    from sklearn.metrics import mean_squared_error
-    from sklearn.metrics import r2_score
-    import matplotlib.pyplot as plt
-
-    if show == True:
-       
+    if show:
         print("Start drawing")
         plt.figure(figsize=(7, 5), dpi=400)
         plt.rcParams['font.sans-serif'] = ['Arial']  
@@ -41,37 +35,35 @@ def evaluate_model_plot(y_true, y_predict, residual= False ,show=True):
         ax = plt.gca() 
         plt.scatter(y_true, y_predict, color='red')
         plt.plot(y_predict, y_predict, color='blue')
-      
         plt.xticks(fontsize=12, fontweight='bold')
         plt.yticks(fontsize=12, fontweight='bold')
         plt.xlabel("Measured", fontsize=12, fontweight='bold')
         plt.ylabel("Predicted", fontsize=12, fontweight='bold')
-       
         plt.savefig('./genetic.svg', format='svg')
         plt.show()
 
-        plt.figure(figsize=(7, 5), dpi=400)
-        plt.hist(np.array(y_true)-np.array(y_predict),40)
-        plt.xticks(fontsize=20)
-        plt.yticks(fontsize=20)
-        plt.xlabel("Residual",fontsize = 20)
-        plt.ylabel("Freq",fontsize = 20)
-        #plt.title("Residual=y_true-y_pred",fontsize = 30)
-        plt.show()
-    from sklearn.metrics import mean_absolute_error
-    
+        if residual:
+            plt.figure(figsize=(7, 5), dpi=400)
+            plt.hist(np.array(y_true)-np.array(y_predict), 40)
+            plt.xticks(fontsize=20)
+            plt.yticks(fontsize=20)
+            plt.xlabel("Residual", fontsize=20)
+            plt.ylabel("Freq", fontsize=20)
+            plt.show()
+
     n = len(y_true)
     MSE = mean_squared_error(y_true, y_predict)
-    RMSE = pow(MSE,0.5)
+    RMSE = np.sqrt(MSE)
     MAE = mean_absolute_error(y_true, y_predict)
     R2 = r2_score(y_true, y_predict)
-           
+
     print("Number of samples:", round(n))
-print("Root Mean Squared Error (RMSE):", round(RMSE, 3))
-print("Mean Squared Error (MSE):", round(MSE, 3))
-print("Mean Absolute Error (MAE):", round(MAE, 3))
-print("R-squared (R2):", round(R2, 3))
-    return dict({"n": n, "MSE": MSE, "RMSE": RMSE, "MSE": MSE, "MAE": MAE, "R2": R2})
+    print("Root Mean Squared Error (RMSE):", round(RMSE, 3))
+    print("Mean Squared Error (MSE):", round(MSE, 3))
+    print("Mean Absolute Error (MAE):", round(MAE, 3))
+    print("R-squared (R2):", round(R2, 3))
+
+    return {"n": n, "MSE": MSE, "RMSE": RMSE, "MAE": MAE, "R2": R2}
 
 def draw_corrheatmap(df):
     import seaborn as sns
